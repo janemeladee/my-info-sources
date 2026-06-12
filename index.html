@@ -1,0 +1,746 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>我的信息源导航</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f7f5ef;
+      --panel: #ffffff;
+      --ink: #202124;
+      --muted: #65676d;
+      --line: #dedbd2;
+      --blue: #3157d5;
+      --blue-soft: #e8edff;
+      --green: #176b4d;
+      --green-soft: #e7f4ee;
+      --amber: #8a5a00;
+      --amber-soft: #fff1cf;
+      --red: #a23b33;
+      --red-soft: #ffe8e5;
+      --shadow: 0 18px 50px rgba(31, 33, 38, 0.08);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei", sans-serif;
+      line-height: 1.55;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .page {
+      width: min(1180px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 36px 0 56px;
+    }
+
+    header {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 360px;
+      gap: 28px;
+      align-items: end;
+      padding: 28px 0 24px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(34px, 6vw, 72px);
+      line-height: 0.98;
+      letter-spacing: 0;
+      font-weight: 750;
+    }
+
+    .intro {
+      margin: 18px 0 0;
+      max-width: 680px;
+      color: var(--muted);
+      font-size: 16px;
+    }
+
+    .toolbar {
+      display: grid;
+      gap: 12px;
+    }
+
+    .search {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      color: var(--ink);
+      font: inherit;
+      padding: 13px 14px;
+      outline: none;
+      box-shadow: 0 8px 24px rgba(31, 33, 38, 0.04);
+    }
+
+    .search:focus {
+      border-color: var(--blue);
+      box-shadow: 0 0 0 4px rgba(49, 87, 213, 0.14);
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 220px minmax(0, 1fr);
+      gap: 26px;
+      align-items: start;
+      margin-top: 24px;
+    }
+
+    nav {
+      position: sticky;
+      top: 18px;
+      display: grid;
+      gap: 7px;
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.76);
+      box-shadow: 0 12px 36px rgba(31, 33, 38, 0.05);
+    }
+
+    nav a {
+      padding: 9px 10px;
+      border-radius: 6px;
+      color: #3c4047;
+      font-size: 14px;
+    }
+
+    nav a:hover {
+      background: var(--blue-soft);
+      color: var(--blue);
+    }
+
+    main {
+      display: grid;
+      gap: 22px;
+    }
+
+    section {
+      scroll-margin-top: 24px;
+      padding: 22px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.8);
+      box-shadow: var(--shadow);
+    }
+
+    .section-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      align-items: baseline;
+      margin-bottom: 16px;
+    }
+
+    h2 {
+      margin: 0;
+      font-size: 24px;
+      line-height: 1.15;
+      letter-spacing: 0;
+    }
+
+    .section-count {
+      display: none;
+    }
+
+    .cards {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: stretch;
+      gap: 12px;
+    }
+
+    #ai-builders .cards {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .card {
+      display: grid;
+      gap: 12px;
+      width: auto;
+      min-width: max(180px, calc(var(--title-length, 10) * 1em + 80px));
+      max-width: 310px;
+      min-height: 96px;
+      padding: 14px 16px;
+      border: 1px solid #e6e2d8;
+      border-radius: 8px;
+      background: var(--panel);
+      flex: 0 1 auto;
+    }
+
+    #ai-builders .card,
+    #philosophy .source-rich {
+      width: auto;
+      min-width: 0;
+      max-width: none;
+      min-height: 154px;
+      padding: 16px;
+    }
+
+    #philosophy .source-rich {
+      flex: 1 1 560px;
+    }
+
+    #ai-other .title {
+      white-space: nowrap;
+    }
+
+    .card.hidden {
+      display: none;
+    }
+
+    .card-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .title {
+      margin: 0;
+      font-size: 18px;
+      line-height: 1.25;
+      font-weight: 720;
+    }
+
+    .meta {
+      display: none;
+    }
+
+    .tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      align-content: start;
+    }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      min-height: 24px;
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: #f2f0ea;
+      color: #555861;
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    .tag.direct {
+      background: var(--green-soft);
+      color: var(--green);
+    }
+
+    .tag.container {
+      background: var(--blue-soft);
+      color: var(--blue);
+    }
+
+    .tag.local {
+      background: var(--amber-soft);
+      color: var(--amber);
+    }
+
+    .tag.todo {
+      background: var(--red-soft);
+      color: var(--red);
+    }
+
+    .tag.update {
+      background: var(--amber-soft);
+      color: var(--amber);
+    }
+
+    .note {
+      margin: 0;
+      color: #4d5057;
+      font-size: 14px;
+    }
+
+    .source-list {
+      display: grid;
+      gap: 8px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .source-list li {
+      display: grid;
+      grid-template-columns: 76px minmax(0, 1fr);
+      gap: 10px;
+      align-items: baseline;
+      color: #3f4249;
+      font-size: 14px;
+    }
+
+    .source-label {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 650;
+    }
+
+    .source-list a {
+      color: var(--blue);
+      font-weight: 620;
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+
+    .source-list li > :last-child {
+      overflow-wrap: anywhere;
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-self: end;
+    }
+
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 34px;
+      padding: 7px 11px;
+      border: 1px solid #cfd5ec;
+      border-radius: 8px;
+      background: #f7f9ff;
+      color: var(--blue);
+      font-size: 13px;
+      font-weight: 620;
+    }
+
+    .button:hover {
+      border-color: var(--blue);
+      background: var(--blue-soft);
+    }
+
+    .path {
+      width: 100%;
+      overflow-wrap: anywhere;
+      border: 1px dashed #d7c79b;
+      border-radius: 8px;
+      padding: 8px 10px;
+      background: #fff9ea;
+      color: #604316;
+      font-size: 12px;
+      font-family: "Cascadia Mono", Consolas, monospace;
+    }
+
+    .empty {
+      display: none;
+      padding: 22px;
+      border: 1px dashed var(--line);
+      border-radius: 8px;
+      color: var(--muted);
+      text-align: center;
+      background: rgba(255, 255, 255, 0.65);
+    }
+
+    .empty.visible {
+      display: block;
+    }
+
+    @media (max-width: 900px) {
+      header,
+      .layout {
+        grid-template-columns: 1fr;
+      }
+
+      nav {
+        position: static;
+        display: flex;
+        flex-wrap: wrap;
+      }
+
+      nav a {
+        border: 1px solid var(--line);
+      }
+
+      .cards {
+        grid-template-columns: 1fr;
+      }
+
+      #ai-other .card {
+        max-width: 100%;
+      }
+    }
+
+    @media (max-width: 560px) {
+      .page {
+        width: min(100% - 20px, 1180px);
+        padding-top: 20px;
+      }
+
+      header {
+        padding-top: 12px;
+      }
+
+      section {
+        padding: 16px;
+      }
+
+      .section-head {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <div>
+        <h1>我的信息源导航</h1>
+        <p class="intro">按主题找信息，按容器打开入口。能直接跳转的放来源链接；拿不到单独链接的，先放邮箱、订阅页、平台或本地路径。</p>
+      </div>
+      <div class="toolbar" aria-label="搜索和快捷入口">
+        <input id="search" class="search" type="search" placeholder="搜索名称、平台、分类或备注" autocomplete="off">
+      </div>
+    </header>
+
+    <div class="layout">
+      <nav aria-label="主题导航">
+        <a href="#ai-builders">AI builders</a>
+        <a href="#ai-other">AI 其它关注</a>
+        <a href="#platforms">通用平台入口</a>
+        <a href="#blog">Blog / Newsletter</a>
+        <a href="#people">人物研究专题</a>
+        <a href="#philosophy">人生哲学</a>
+        <a href="#finance">理财</a>
+        <a href="#local">本地待读</a>
+      </nav>
+
+      <main id="content">
+        <div id="empty" class="empty">没有匹配的信息源。换个关键词试试。</div>
+
+        <section id="ai-builders" data-section>
+          <div class="section-head">
+            <h2>AI builders</h2>
+            <span class="section-count"></span>
+          </div>
+          <div class="cards">
+            <article class="card" data-source="follow builder digest ai builders codex 自动推送 skill digest">
+              <div class="card-top">
+                <div>
+                  <h3 class="title">follow builder digest</h3>
+                  <div class="meta">Codex skill · 自动推送</div>
+                </div>
+                <div class="tags"><span class="tag container">容器入口</span></div>
+              </div>
+              <p class="note">由已安装的 follow-builders skill 提供 AI builder digest。</p>
+            </article>
+
+            <article class="card" data-source="gmail newsletter ai builders ai valley every bens bites peter yang ainews latent space">
+              <div class="card-top">
+                <div>
+                  <h3 class="title">Gmail newsletter</h3>
+                  <div class="meta">Gmail · 邮箱容器</div>
+                </div>
+                <div class="tags"><span class="tag container">容器入口</span></div>
+              </div>
+              <p class="note">邮件来源：AI Valley、Every、Ben's Bites、Peter Yang、AINews、Latent.Space。</p>
+              <div class="actions"><a class="button" href="https://mail.google.com/mail/u/0/#inbox" target="_blank" rel="noreferrer">打开 Gmail</a></div>
+            </article>
+
+            <article class="card" data-source="substack inbox ai builders newsletter">
+              <div class="card-top">
+                <div>
+                  <h3 class="title">Substack inbox</h3>
+                  <div class="meta">Substack · 订阅收件箱</div>
+                </div>
+                <div class="tags"><span class="tag container">容器入口</span></div>
+              </div>
+              <p class="note">暂时作为 Substack 订阅的统一入口。</p>
+              <div class="actions"><a class="button" href="https://substack.com/inbox" target="_blank" rel="noreferrer">打开 Substack</a></div>
+            </article>
+          </div>
+        </section>
+
+        <section id="ai-other" data-section>
+          <div class="section-head">
+            <h2>AI 其它关注</h2>
+            <span class="section-count"></span>
+          </div>
+          <div class="cards">
+            <article class="card" style="--title-length: 5" data-source="aihot ai 其它关注 virxact">
+              <div class="card-top">
+                <div>
+                  <h3 class="title">AIHOT</h3>
+                  <div class="meta">网站 · AI 资讯</div>
+                </div>
+                <div class="tags"><span class="tag direct">直接链接</span></div>
+              </div>
+              <div class="actions"><a class="button" href="https://aihot.virxact.com/" target="_blank" rel="noreferrer">打开链接</a></div>
+            </article>
+
+            <article class="card" style="--title-length: 7" data-source="每日AI资讯 maomu news ai">
+              <div class="card-top">
+                <div>
+                  <h3 class="title">每日 AI 资讯</h3>
+                  <div class="meta">网站 · AI 资讯</div>
+                </div>
+                <div class="tags"><span class="tag direct">直接链接</span></div>
+              </div>
+              <div class="actions"><a class="button" href="https://maomu.com/news" target="_blank" rel="noreferrer">打开链接</a></div>
+            </article>
+
+            <article class="card" style="--title-length: 5" data-source="微信公众号 ai 其它关注">
+              <div class="card-top">
+                <div>
+                  <h3 class="title">微信公众号</h3>
+                  <div class="meta">微信 · 内容容器</div>
+                </div>
+                <div class="tags"><span class="tag todo">待补链接</span></div>
+              </div>
+            </article>
+
+            <article class="card" style="--title-length: 11" data-source="小红书188账号关注 ai">
+              <div class="card-top">
+                <div>
+                  <h3 class="title">小红书 188 账号关注</h3>
+                  <div class="meta">小红书 · 账号关注</div>
+                </div>
+                <div class="tags"><span class="tag todo">待补链接</span></div>
+              </div>
+            </article>
+
+            <article class="card" style="--title-length: 8" data-source="微博 互联网关注 ai">
+              <div class="card-top">
+                <div>
+                  <h3 class="title">微博-互联网关注</h3>
+                  <div class="meta">微博 · 内容容器</div>
+                </div>
+                <div class="tags"><span class="tag todo">待补链接</span></div>
+              </div>
+            </article>
+
+            <article class="card" style="--title-length: 4" data-source="folo ai 其它关注 rss pending articles">
+              <div class="card-top">
+                <div>
+                  <h3 class="title">Folo</h3>
+                  <div class="meta">Folo · 订阅阅读</div>
+                </div>
+                <div class="tags"><span class="tag container">容器入口</span></div>
+              </div>
+              <div class="actions"><a class="button" href="https://app.folo.is/timeline/articles/all/pending" target="_blank" rel="noreferrer">打开 Folo</a></div>
+            </article>
+
+            <article class="card" style="--title-length: 14" data-source="youtube ai 订阅 subscriptions">
+              <div class="card-top">
+                <div>
+                  <h3 class="title">YouTube 相关 AI 订阅</h3>
+                  <div class="meta">YouTube · 订阅页</div>
+                </div>
+                <div class="tags"><span class="tag container">容器入口</span></div>
+              </div>
+              <div class="actions"><a class="button" href="https://www.youtube.com/feed/subscriptions" target="_blank" rel="noreferrer">打开 YouTube 订阅</a></div>
+            </article>
+
+            <article class="card" style="--title-length: 12" data-source="Aisten 播客学语言 ai">
+              <div class="card-top">
+                <div>
+                  <h3 class="title">Aisten 播客学语言</h3>
+                  <div class="meta">播客 / 学语言</div>
+                </div>
+                <div class="tags"><span class="tag todo">待补链接</span></div>
+              </div>
+            </article>
+          </div>
+        </section>
+
+        <section id="platforms" data-section>
+          <div class="section-head">
+            <h2>通用平台入口</h2>
+            <span class="section-count"></span>
+          </div>
+          <div class="cards">
+            <article class="card" data-source="微信公众号 其它平台">
+              <div class="card-top"><div><h3 class="title">微信公众号</h3><div class="meta">微信 · 容器</div></div><div class="tags"><span class="tag todo">待补链接</span></div></div>
+            </article>
+            <article class="card" data-source="folo 其它平台">
+              <div class="card-top"><div><h3 class="title">Folo</h3><div class="meta">订阅阅读 · 容器</div></div><div class="tags"><span class="tag container">容器入口</span></div></div>
+              <div class="actions"><a class="button" href="https://app.folo.is/timeline/articles/all/pending" target="_blank" rel="noreferrer">打开 Folo</a></div>
+            </article>
+            <article class="card" data-source="youtube订阅 其它平台">
+              <div class="card-top"><div><h3 class="title">YouTube 订阅</h3><div class="meta">YouTube · 容器</div></div><div class="tags"><span class="tag container">容器入口</span></div></div>
+              <div class="actions"><a class="button" href="https://www.youtube.com/feed/subscriptions" target="_blank" rel="noreferrer">打开 YouTube</a></div>
+            </article>
+            <article class="card" data-source="小红书 其它平台">
+              <div class="card-top"><div><h3 class="title">小红书</h3><div class="meta">平台 · 容器</div></div><div class="tags"><span class="tag todo">待补链接</span></div></div>
+            </article>
+            <article class="card" data-source="即刻 其它平台">
+              <div class="card-top"><div><h3 class="title">即刻</h3><div class="meta">平台 · 容器</div></div><div class="tags"><span class="tag todo">待补链接</span></div></div>
+            </article>
+            <article class="card" data-source="小宇宙播客 其它平台 podcast">
+              <div class="card-top"><div><h3 class="title">小宇宙播客</h3><div class="meta">播客 · 容器</div></div><div class="tags"><span class="tag todo">待补链接</span></div></div>
+            </article>
+            <article class="card" data-source="Aisten播客学语言 其它平台">
+              <div class="card-top"><div><h3 class="title">Aisten 播客学语言</h3><div class="meta">播客 / 学语言</div></div><div class="tags"><span class="tag todo">待补链接</span></div></div>
+            </article>
+            <article class="card" data-source="微信群聊 其它平台">
+              <div class="card-top"><div><h3 class="title">微信群聊</h3><div class="meta">微信 · 群聊容器</div></div><div class="tags"><span class="tag todo">待补链接</span></div></div>
+            </article>
+            <article class="card" data-source="cubox待读 其它平台 reading">
+              <div class="card-top"><div><h3 class="title">Cubox 待读</h3><div class="meta">稍后读 · 容器</div></div><div class="tags"><span class="tag todo">待补链接</span></div></div>
+            </article>
+            <article class="card" data-source="小报童订阅 其它平台">
+              <div class="card-top"><div><h3 class="title">小报童订阅</h3><div class="meta">专栏订阅 · 容器</div></div><div class="tags"><span class="tag todo">待补链接</span></div></div>
+            </article>
+            <article class="card" data-source="B站 bilibili 其它平台">
+              <div class="card-top"><div><h3 class="title">B站</h3><div class="meta">视频平台 · 容器</div></div><div class="tags"><span class="tag container">容器入口</span></div></div>
+              <div class="actions"><a class="button" href="https://www.bilibili.com/" target="_blank" rel="noreferrer">打开 B站</a></div>
+            </article>
+          </div>
+        </section>
+
+        <section id="blog" data-section>
+          <div class="section-head">
+            <h2>Blog / Newsletter</h2>
+            <span class="section-count"></span>
+          </div>
+          <div class="cards">
+            <article class="card" data-source="naval blog newsletter">
+              <div class="card-top"><div><h3 class="title">Naval</h3><div class="meta">个人网站 · Blog</div></div><div class="tags"><span class="tag direct">直接链接</span></div></div>
+              <div class="actions"><a class="button" href="https://nav.al/" target="_blank" rel="noreferrer">打开链接</a></div>
+            </article>
+            <article class="card" data-source="虹线 个人 blog newsletter 1q43">
+              <div class="card-top"><div><h3 class="title">虹线 · 个人博客</h3><div class="meta">Blog · 个人站</div></div><div class="tags"><span class="tag direct">直接链接</span></div></div>
+              <div class="actions"><a class="button" href="https://1q43.blog" target="_blank" rel="noreferrer">打开链接</a></div>
+            </article>
+            <article class="card" data-source="虹线 周刊 weekly newsletter 1q43">
+              <div class="card-top"><div><h3 class="title">虹线 · 周刊</h3><div class="meta">Newsletter · 周刊</div></div><div class="tags"><span class="tag direct">直接链接</span></div></div>
+              <div class="actions"><a class="button" href="https://weekly.1q43.blog/" target="_blank" rel="noreferrer">打开周刊</a></div>
+            </article>
+          </div>
+        </section>
+
+        <section id="people" data-section>
+          <div class="section-head">
+            <h2>人物研究专题</h2>
+            <span class="section-count"></span>
+          </div>
+          <div class="cards">
+            <article class="card" data-source="羔羊计划 人物研究专题 notion pmthinking">
+              <div class="card-top"><div><h3 class="title">羔羊计划</h3><div class="meta">Notion · 人物研究</div></div><div class="tags"><span class="tag direct">直接链接</span></div></div>
+              <div class="actions"><a class="button" href="https://app.notion.com/p/pmthinking/2c52f8e86e1581f7ad25ef8908e623a6" target="_blank" rel="noreferrer">打开 Notion</a></div>
+            </article>
+          </div>
+        </section>
+
+        <section id="philosophy" data-section>
+          <div class="section-head">
+            <h2>人生哲学</h2>
+            <span class="section-count"></span>
+          </div>
+          <div class="cards">
+            <article class="card source-rich" data-source="莫提之地 人生哲学 小宇宙 微信群 flomo 金金 灵性 bashar 问答合集 需要定期更新">
+              <div class="card-top"><div><h3 class="title">莫提之地</h3><div class="meta">小宇宙 / 微信群 / flomo / 本地合集</div></div><div class="tags"><span class="tag container">多容器</span><span class="tag update">需更新</span></div></div>
+              <ul class="source-list">
+                <li><span class="source-label">小宇宙</span><a href="https://www.xiaoyuzhoufm.com/podcast/65e718c7cf58e9b0073e0d0c" target="_blank" rel="noreferrer">播客主页</a></li>
+                <li><span class="source-label">微信</span><span>微信群</span></li>
+                <li><span class="source-label">flomo</span><span>标签：金金-灵性</span></li>
+                <li><span class="source-label">本地</span><span>D:\MIMI\Personal OS\金金-Bashar-灵性</span></li>
+              </ul>
+            </article>
+
+            <article class="card source-rich" data-source="中二怪 人生哲学 小报童 微信群 flomo 语录 需要定期更新">
+              <div class="card-top"><div><h3 class="title">中二怪</h3><div class="meta">小报童 / 微信群 / flomo / 本地语录</div></div><div class="tags"><span class="tag container">多容器</span><span class="tag update">需更新</span></div></div>
+              <ul class="source-list">
+                <li><span class="source-label">小报童</span><span>专栏入口待补</span></li>
+                <li><span class="source-label">微信</span><span>微信群</span></li>
+                <li><span class="source-label">flomo</span><span>标签：二怪</span></li>
+                <li><span class="source-label">本地</span><span>D:\MIMI\Personal OS\中二怪小报童</span></li>
+              </ul>
+            </article>
+
+            <article class="card" data-source="风烟俱净 WLY 园长的多重宇宙 人生哲学 公众号">
+              <div class="card-top"><div><h3 class="title">风烟俱净 WLY / 园长的多重宇宙</h3><div class="meta">公众号 · 人生哲学</div></div><div class="tags"><span class="tag todo">待补链接</span></div></div>
+            </article>
+
+            <article class="card" data-source="其它身心灵KOL 人生哲学 notion">
+              <div class="card-top"><div><h3 class="title">其它身心灵 KOL</h3><div class="meta">Notion · 汇总页</div></div><div class="tags"><span class="tag direct">直接链接</span></div></div>
+              <div class="actions"><a class="button" href="https://app.notion.com/p/1999efff3dc80018196c5e76cb6cd6b" target="_blank" rel="noreferrer">打开 Notion</a></div>
+            </article>
+          </div>
+        </section>
+
+        <section id="finance" data-section>
+          <div class="section-head">
+            <h2>理财</h2>
+            <span class="section-count"></span>
+          </div>
+          <div class="cards">
+            <article class="card" data-source="理财 也谈钱 王紫君 老钱日日谈 长赢指数投资 公众号">
+              <div class="card-top"><div><h3 class="title">理财公众号合集</h3><div class="meta">微信公众号 · 投资理财</div></div><div class="tags"><span class="tag todo">待补链接</span></div></div>
+              <p class="note">也谈钱、王紫君、老钱日日谈、长赢指数投资。</p>
+            </article>
+          </div>
+        </section>
+
+        <section id="local" data-section>
+          <div class="section-head">
+            <h2>本地待读</h2>
+            <span class="section-count"></span>
+          </div>
+          <div class="cards">
+            <article class="card" data-source="小报童专栏下载 reading 本地资料">
+              <div class="card-top"><div><h3 class="title">小报童专栏下载</h3><div class="meta">本地资料 · 需要更新</div></div><div class="tags"><span class="tag local">本地路径</span></div></div>
+              <div class="path">D:\MIMI\Personal OS\life\reading</div>
+            </article>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <script>
+    const search = document.querySelector("#search");
+    const cards = [...document.querySelectorAll(".card")];
+    const sections = [...document.querySelectorAll("[data-section]")];
+    const empty = document.querySelector("#empty");
+
+    function updateCounts() {
+      sections.forEach((section) => {
+        const visible = [...section.querySelectorAll(".card")].filter((card) => !card.classList.contains("hidden")).length;
+        const total = section.querySelectorAll(".card").length;
+        section.querySelector(".section-count").textContent = visible === total ? `${total} 个入口` : `${visible} / ${total} 个入口`;
+        section.style.display = visible ? "" : "none";
+      });
+      empty.classList.toggle("visible", cards.every((card) => card.classList.contains("hidden")));
+    }
+
+    search.addEventListener("input", () => {
+      const query = search.value.trim().toLowerCase();
+      cards.forEach((card) => {
+        const haystack = `${card.innerText} ${card.dataset.source || ""}`.toLowerCase();
+        card.classList.toggle("hidden", query && !haystack.includes(query));
+      });
+      updateCounts();
+    });
+
+    updateCounts();
+  </script>
+</body>
+</html>
